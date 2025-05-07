@@ -45,6 +45,8 @@ export class OpenAIService {
         enhancedPrompt += "Make it stunning, persuasive, and modern. Highlight the unique value proposition.";
       }
 
+      console.log("Generating image with prompt:", enhancedPrompt);
+
       const response = await fetch(`${API_URL}/images/generations`, {
         method: "POST",
         headers: {
@@ -63,12 +65,14 @@ export class OpenAIService {
 
       if (!response.ok) {
         const error = await response.json();
+        toast.error(error.error?.message || "Failed to generate image");
         throw new Error(error.error?.message || "Failed to generate image");
       }
 
       const data = await response.json();
       return data.data[0].url;
     } catch (error) {
+      console.error("Error generating image:", error);
       toast.error(error instanceof Error ? error.message : "Failed to generate image");
       throw error;
     }
@@ -76,6 +80,8 @@ export class OpenAIService {
 
   async analyzeCompetitor(competitorImage: string) {
     try {
+      console.log("Analyzing competitor image...");
+      
       const response = await fetch(`${API_URL}/chat/completions`, {
         method: "POST",
         headers: {
@@ -111,14 +117,19 @@ export class OpenAIService {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error?.message || "Failed to analyze competitor");
+        console.error("Error analyzing competitor:", error);
+        toast.error("Failed to analyze competitor: " + (error.error?.message || "Unknown error"));
+        // Instead of throwing, return a default message
+        return "Unable to analyze competitor image due to API error. Proceeding with ad generation anyway.";
       }
 
       const data = await response.json();
       return data.choices[0].message.content;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to analyze competitor");
-      throw error;
+      console.error("Error analyzing competitor:", error);
+      toast.error("Failed to analyze competitor - continuing with ad creation");
+      // Return a default message rather than throwing
+      return "Unable to analyze competitor image. Proceeding with ad generation anyway.";
     }
   }
 
@@ -127,7 +138,13 @@ export class OpenAIService {
     websiteUrl?: string;
     description?: string;
   }) {
+    if (!projectData.images?.length && !projectData.websiteUrl && !projectData.description) {
+      return "No project data provided for analysis.";
+    }
+
     try {
+      console.log("Analyzing project data...");
+      
       const messages = [
         {
           role: "system" as const,
@@ -187,14 +204,19 @@ export class OpenAIService {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error?.message || "Failed to analyze project");
+        console.error("Error analyzing project:", error);
+        toast.error("Failed to analyze project: " + (error.error?.message || "Unknown error"));
+        // Instead of throwing, return a default message
+        return "Unable to analyze project data due to API error. Proceeding with ad generation anyway.";
       }
 
       const data = await response.json();
       return data.choices[0].message.content;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to analyze project");
-      throw error;
+      console.error("Error analyzing project:", error);
+      toast.error("Failed to analyze project - continuing with ad creation");
+      // Return a default message rather than throwing
+      return "Unable to analyze project data. Proceeding with ad generation anyway.";
     }
   }
 
@@ -204,45 +226,72 @@ export class OpenAIService {
     description?: string;
   }) {
     try {
+      console.log("Starting comprehensive analysis...");
+      
       // First, analyze competitor
-      const competitorAnalysis = await this.analyzeCompetitor(competitorImage);
+      const competitorAnalysis = await this.analyzeCompetitor(competitorImage)
+        .catch(err => {
+          console.error("Error in competitor analysis:", err);
+          return "Unable to analyze competitor image. Proceeding with ad generation anyway.";
+        });
       
       // Then, analyze project
-      const projectAnalysis = await this.analyzeProject(projectData);
+      const projectAnalysis = await this.analyzeProject(projectData)
+        .catch(err => {
+          console.error("Error in project analysis:", err);
+          return "Unable to analyze project data. Proceeding with ad generation anyway.";
+        });
+      
+      // If both analyses failed, return a default message
+      if (competitorAnalysis.includes("Unable to analyze") && projectAnalysis.includes("Unable to analyze")) {
+        return "Could not perform detailed analysis, but will generate an ad creative based on the provided information.";
+      }
       
       // Now, create a comprehensive strategy using both analyses
-      const response = await fetch(`${API_URL}/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.apiKey}`
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [
-            {
-              role: "system",
-              content: "You are an expert marketing consultant specializing in digital ad creatives. Create a comprehensive ad strategy based on competitor and project analyses."
-            },
-            {
-              role: "user",
-              content: `Here is my competitor analysis:\n\n${competitorAnalysis}\n\nHere is my project analysis:\n\n${projectAnalysis}\n\nBased on these analyses, please create a comprehensive ad strategy that highlights my unique advantages and positions my offer effectively against the competition.`
-            }
-          ],
-          max_tokens: 600
-        })
-      });
+      try {
+        console.log("Creating comprehensive strategy...");
+        
+        const response = await fetch(`${API_URL}/chat/completions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${this.apiKey}`
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: [
+              {
+                role: "system",
+                content: "You are an expert marketing consultant specializing in digital ad creatives. Create a comprehensive ad strategy based on competitor and project analyses."
+              },
+              {
+                role: "user",
+                content: `Here is my competitor analysis:\n\n${competitorAnalysis}\n\nHere is my project analysis:\n\n${projectAnalysis}\n\nBased on these analyses, please create a comprehensive ad strategy that highlights my unique advantages and positions my offer effectively against the competition.`
+              }
+            ],
+            max_tokens: 600
+          })
+        });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || "Failed to create strategy");
+        if (!response.ok) {
+          const error = await response.json();
+          console.error("Error creating strategy:", error);
+          toast.error("Failed to create strategy: " + (error.error?.message || "Unknown error"));
+          // Return a combined analysis instead of throwing
+          return `Based on our analysis:\n\n${competitorAnalysis}\n\n${projectAnalysis}`;
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content;
+      } catch (error) {
+        console.error("Error creating strategy:", error);
+        // Return a combined analysis instead of throwing
+        return `Based on our analysis:\n\n${competitorAnalysis}\n\n${projectAnalysis}`;
       }
-
-      const data = await response.json();
-      return data.choices[0].message.content;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create strategy");
-      throw error;
+      console.error("Error in comprehensive analysis:", error);
+      toast.error("Failed in comprehensive analysis - continuing with ad creation");
+      return "Unable to perform detailed analysis, but will generate an ad creative based on the provided information.";
     }
   }
 }

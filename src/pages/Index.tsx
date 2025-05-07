@@ -13,7 +13,6 @@ import { OpenAIService } from "@/services/openai";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [apiKey, setApiKey] = useState<string | null>(null);
@@ -27,6 +26,7 @@ const Index = () => {
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [currentInputMethod, setCurrentInputMethod] = useState<string>("images");
+  const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
     // Check if API key is stored in localStorage
@@ -41,7 +41,13 @@ const Index = () => {
     localStorage.setItem("openai_api_key", key);
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (e: React.FormEvent) => {
+    // Prevent default form submission behavior which can cause page refresh
+    e.preventDefault();
+    
+    // Reset error state
+    setError(null);
+    
     // Validate that we have a competitor image and at least one input for the project
     if (!apiKey || !competitorImage) {
       toast.error("Please upload a competitor image");
@@ -72,15 +78,18 @@ const Index = () => {
         description: projectDescription || undefined,
       };
       
+      // Get analysis (with error handling built into the service)
       const analysisResult = await openai.analyzeImagesAndCreateStrategy(competitorImage, projectData);
       setAnalysis(analysisResult);
       setIsAnalyzing(false);
       
-      // Then generate the image
+      // Then generate the image (with error handling built into the service)
       const imageUrl = await openai.generateAdCreative(competitorImage, projectData, customPrompt);
       setGeneratedImageUrl(imageUrl);
+      
     } catch (error) {
       console.error("Error generating content:", error);
+      setError(error instanceof Error ? error.message : "Unknown error occurred");
       toast.error("Failed to generate content. Please check your API key and try again.");
     } finally {
       setIsGenerating(false);
@@ -96,6 +105,7 @@ const Index = () => {
     setAnalysis(null);
     setCustomPrompt("");
     setCurrentInputMethod("images");
+    setError(null);
   };
 
   if (!apiKey) {
@@ -137,61 +147,69 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <ImageUpload
-                title="Competitor's App/Product"
-                description="Upload a screenshot of your competitor's app or product"
-                onImageUpload={setCompetitorImage}
-              />
-              
-              <ProjectInputSection 
-                onImagesUpload={setProjectImages}
-                onWebsiteUrlChange={setProjectWebsiteUrl}
-                onDescriptionChange={setProjectDescription}
-              />
-            </div>
-            
-            <motion.div 
-              className="mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.4 }}
-            >
-              <Label htmlFor="customPrompt">Custom Instructions (Optional)</Label>
-              <Textarea
-                id="customPrompt"
-                placeholder="Add specific instructions for your ad creative (e.g., highlight unique features, target specific audience, include specific messaging)"
-                className="mt-2 bg-background/50 resize-none"
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-              />
-            </motion.div>
-            
-            {isGenerating ? (
-              <div className="flex justify-center py-10">
-                {isAnalyzing ? (
-                  <LoadingSpinner message="Analyzing images and creating marketing strategy..." />
-                ) : (
-                  <LoadingSpinner message="Generating your ad creative..." />
-                )}
+            <form onSubmit={handleGenerate}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <ImageUpload
+                  title="Competitor's App/Product"
+                  description="Upload a screenshot of your competitor's app or product"
+                  onImageUpload={setCompetitorImage}
+                />
+                
+                <ProjectInputSection 
+                  onImagesUpload={setProjectImages}
+                  onWebsiteUrlChange={setProjectWebsiteUrl}
+                  onDescriptionChange={setProjectDescription}
+                />
               </div>
-            ) : (
+              
               <motion.div 
-                className="flex justify-center"
+                className="mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.4 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
               >
-                <Button
-                  size="lg"
-                  onClick={handleGenerate}
-                  disabled={!competitorImage || (!projectImages.length && !projectWebsiteUrl && !projectDescription)}
-                  className="bg-pirate-500 hover:bg-pirate-600 text-white font-medium px-8"
-                >
-                  Generate Ad Creative
-                </Button>
+                <Label htmlFor="customPrompt">Custom Instructions (Optional)</Label>
+                <Textarea
+                  id="customPrompt"
+                  placeholder="Add specific instructions for your ad creative (e.g., highlight unique features, target specific audience, include specific messaging)"
+                  className="mt-2 bg-background/50 resize-none"
+                  value={customPrompt}
+                  onChange={(e) => setCustomPrompt(e.target.value)}
+                />
               </motion.div>
-            )}
+              
+              {error && (
+                <div className="mb-6 p-4 rounded-lg border border-red-500/30 bg-red-500/10">
+                  <p className="text-red-400">{error}</p>
+                </div>
+              )}
+              
+              {isGenerating ? (
+                <div className="flex justify-center py-10">
+                  {isAnalyzing ? (
+                    <LoadingSpinner message="Analyzing images and creating marketing strategy..." />
+                  ) : (
+                    <LoadingSpinner message="Generating your ad creative..." />
+                  )}
+                </div>
+              ) : (
+                <motion.div 
+                  className="flex justify-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
+                >
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={!competitorImage || (!projectImages.length && !projectWebsiteUrl && !projectDescription)}
+                    className="bg-pirate-500 hover:bg-pirate-600 text-white font-medium px-8"
+                  >
+                    Generate Ad Creative
+                  </Button>
+                </motion.div>
+              )}
+            </form>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

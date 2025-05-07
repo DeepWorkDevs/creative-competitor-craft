@@ -10,17 +10,31 @@ interface WebsitePreviewProps {
 
 const WebsitePreview = ({ url }: WebsitePreviewProps) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Sanitize URL to ensure it has a protocol
   const sanitizedUrl = url.startsWith('http') ? url : `https://${url}`;
   
   // Reset loading state when URL changes
   useEffect(() => {
     setIsLoading(true);
+    setError(null);
+    
+    // Validate URL format
+    try {
+      new URL(sanitizedUrl);
+    } catch (e) {
+      setError("Invalid URL format");
+      setIsLoading(false);
+      return;
+    }
+    
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1500);
     
     return () => clearTimeout(timer);
-  }, [url]);
+  }, [url, sanitizedUrl]);
   
   return (
     <motion.div
@@ -39,6 +53,11 @@ const WebsitePreview = ({ url }: WebsitePreviewProps) => {
               <Skeleton className="h-3 w-1/3 bg-white/10" />
             </div>
           </div>
+        ) : error ? (
+          <div className="p-6 text-center text-red-400">
+            <p>{error}</p>
+            <p className="text-sm text-white/50 mt-2">Please check the URL and try again</p>
+          </div>
         ) : (
           <div className="aspect-video max-h-[300px] overflow-hidden">
             <div className="p-2 bg-black/40 border-b border-white/10 flex items-center">
@@ -49,12 +68,15 @@ const WebsitePreview = ({ url }: WebsitePreviewProps) => {
               </div>
               <div className="text-xs text-center w-full pr-12 truncate text-white/70">{sanitizedUrl}</div>
             </div>
-            <iframe 
-              src={sanitizedUrl}
-              title="Website Preview" 
-              className="w-full h-[250px] border-none"
-              sandbox="allow-same-origin"
-            />
+            <div className="w-full h-[250px] relative">
+              <iframe 
+                src={sanitizedUrl}
+                title="Website Preview" 
+                className="w-full h-full border-none"
+                sandbox="allow-same-origin"
+                onError={() => setError("Failed to load website preview")}
+              />
+            </div>
           </div>
         )}
       </Card>
