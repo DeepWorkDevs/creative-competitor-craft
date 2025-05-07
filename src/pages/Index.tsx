@@ -65,6 +65,7 @@ const Index = () => {
     }
 
     try {
+      console.log("Starting generation process...");
       setIsGenerating(true);
       const openai = new OpenAIService(apiKey);
       
@@ -78,13 +79,23 @@ const Index = () => {
         description: projectDescription || undefined,
       };
       
+      console.log("Project data:", projectData);
+      
       // Get analysis (with error handling built into the service)
-      const analysisResult = await openai.analyzeImagesAndCreateStrategy(competitorImage, projectData);
+      const analysisResult = await openai.analyzeImagesAndCreateStrategy(competitorImage, projectData)
+        .catch(error => {
+          console.error("Analysis failed but continuing:", error);
+          return "Analysis could not be completed, but we'll still generate your ad creative.";
+        });
+      
       setAnalysis(analysisResult);
       setIsAnalyzing(false);
       
       // Then generate the image (with error handling built into the service)
+      console.log("Starting image generation...");
       const imageUrl = await openai.generateAdCreative(competitorImage, projectData, customPrompt);
+      
+      console.log("Image generated successfully:", imageUrl);
       setGeneratedImageUrl(imageUrl);
       
     } catch (error) {

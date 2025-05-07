@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 const API_URL = "https://api.openai.com/v1";
@@ -21,6 +20,8 @@ export class OpenAIService {
     prompt: string
   ) {
     try {
+      console.log("Starting ad creative generation...");
+      
       // Build a dynamic prompt based on available data
       let enhancedPrompt = `Create a professional, high-converting ad creative. `;
       
@@ -65,11 +66,13 @@ export class OpenAIService {
 
       if (!response.ok) {
         const error = await response.json();
+        console.error("Image generation API error:", error);
         toast.error(error.error?.message || "Failed to generate image");
         throw new Error(error.error?.message || "Failed to generate image");
       }
 
       const data = await response.json();
+      console.log("Image generation successful, URL received");
       return data.data[0].url;
     } catch (error) {
       console.error("Error generating image:", error);
@@ -276,7 +279,7 @@ export class OpenAIService {
         if (!response.ok) {
           const error = await response.json();
           console.error("Error creating strategy:", error);
-          toast.error("Failed to create strategy: " + (error.error?.message || "Unknown error"));
+          toast.error("Strategy creation failed - continuing with ad generation");
           // Return a combined analysis instead of throwing
           return `Based on our analysis:\n\n${competitorAnalysis}\n\n${projectAnalysis}`;
         }
@@ -290,7 +293,7 @@ export class OpenAIService {
       }
     } catch (error) {
       console.error("Error in comprehensive analysis:", error);
-      toast.error("Failed in comprehensive analysis - continuing with ad creation");
+      toast.error("Analysis failed - continuing with ad creation");
       return "Unable to perform detailed analysis, but will generate an ad creative based on the provided information.";
     }
   }

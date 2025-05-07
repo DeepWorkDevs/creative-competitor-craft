@@ -12,29 +12,38 @@ const WebsitePreview = ({ url }: WebsitePreviewProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Sanitize URL to ensure it has a protocol
-  const sanitizedUrl = url.startsWith('http') ? url : `https://${url}`;
+  // Improved URL sanitization
+  const sanitizeUrl = (inputUrl: string): string => {
+    let sanitizedUrl = inputUrl.trim();
+    
+    // Check if URL has a protocol, if not add https://
+    if (!sanitizedUrl.match(/^https?:\/\//i)) {
+      sanitizedUrl = `https://${sanitizedUrl}`;
+    }
+    
+    // Try to create a URL object to validate
+    try {
+      new URL(sanitizedUrl);
+      return sanitizedUrl;
+    } catch (e) {
+      setError("Invalid URL format");
+      return "#"; // Return a safe fallback
+    }
+  };
+  
+  const sanitizedUrl = sanitizeUrl(url);
   
   // Reset loading state when URL changes
   useEffect(() => {
     setIsLoading(true);
     setError(null);
     
-    // Validate URL format
-    try {
-      new URL(sanitizedUrl);
-    } catch (e) {
-      setError("Invalid URL format");
-      setIsLoading(false);
-      return;
-    }
-    
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1500);
     
     return () => clearTimeout(timer);
-  }, [url, sanitizedUrl]);
+  }, [url]);
   
   return (
     <motion.div
