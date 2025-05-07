@@ -10,8 +10,8 @@ const Navbar = () => {
     user,
     signOut
   } = useAuth();
-  return <header className="p-4 sm:p-6 sticky top-0 z-10 backdrop-blur bg-background/80 border-b border-white/10 py-[9px]">
-      <div className="container max-w-7xl flex justify-between items-center">
+  return <header className="p-4 sm:p-6 sticky top-0 z-10 backdrop-blur bg-background/80 border-b border-white/10 py-0 px-[11px]">
+      <div className="container max-w-7xl flex justify-between items-center py-0">
         <Link to="/">
           <AdPirateLogo />
         </Link>
