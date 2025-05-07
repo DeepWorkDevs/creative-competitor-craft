@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface ApiKeyInputProps {
   onSubmit: (apiKey: string) => void;
@@ -14,12 +15,30 @@ interface ApiKeyInputProps {
 const ApiKeyInput = ({ onSubmit }: ApiKeyInputProps) => {
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const validateApiKey = (key: string): boolean => {
+    // OpenAI API keys typically start with 'sk-' and are 51 characters long
+    return /^sk-[A-Za-z0-9]{48}$/.test(key);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (apiKey.trim()) {
-      onSubmit(apiKey.trim());
+    const trimmedKey = apiKey.trim();
+    
+    if (!trimmedKey) {
+      setError("API key is required");
+      return;
     }
+    
+    if (!validateApiKey(trimmedKey)) {
+      setError("Invalid API key format. OpenAI API keys start with 'sk-' followed by 48 characters.");
+      toast.error("Please enter a valid OpenAI API key");
+      return;
+    }
+    
+    setError(null);
+    onSubmit(trimmedKey);
   };
 
   return (
@@ -46,8 +65,11 @@ const ApiKeyInput = ({ onSubmit }: ApiKeyInputProps) => {
                 type={showKey ? "text" : "password"}
                 placeholder="sk-..."
                 value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="pr-10 bg-background/50"
+                onChange={(e) => {
+                  setApiKey(e.target.value);
+                  if (error) setError(null);
+                }}
+                className={`pr-10 bg-background/50 ${error ? "border-red-500" : ""}`}
                 required
               />
               <button
@@ -58,6 +80,17 @@ const ApiKeyInput = ({ onSubmit }: ApiKeyInputProps) => {
                 {showKey ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            
+            {error && (
+              <div className="flex items-start gap-2 mt-1 text-red-500 text-sm">
+                <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+            
+            <p className="text-xs text-muted-foreground mt-2">
+              Your API key should start with <code className="bg-black/30 px-1 rounded">sk-</code> followed by 48 characters.
+            </p>
           </div>
 
           <Button
