@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 const API_URL = "https://api.openai.com/v1";
@@ -24,13 +23,13 @@ export class OpenAIService {
     // Validate API key format
     if (!this.validateApiKey(this.apiKey)) {
       console.error("Invalid API key format provided to OpenAIService");
-      throw new Error("Invalid API key format. OpenAI API keys start with 'sk-' followed by 48 characters.");
+      throw new Error("Invalid API key format. OpenAI API keys start with 'sk-'.");
     }
   }
   
   private validateApiKey(key: string): boolean {
-    // OpenAI API keys typically start with 'sk-' and are 51 characters long
-    return /^sk-[A-Za-z0-9]{48}$/.test(key);
+    // Relaxed validation - just check for the sk- prefix
+    return key.startsWith('sk-');
   }
 
   async generateAdCreative(

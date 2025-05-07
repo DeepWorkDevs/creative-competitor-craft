@@ -18,8 +18,9 @@ const ApiKeyInput = ({ onSubmit }: ApiKeyInputProps) => {
   const [error, setError] = useState<string | null>(null);
 
   const validateApiKey = (key: string): boolean => {
-    // OpenAI API keys typically start with 'sk-' and are 51 characters long
-    return /^sk-[A-Za-z0-9]{48}$/.test(key);
+    // OpenAI API keys may start with 'sk-' and have varying lengths
+    // Relaxing the validation to just check for sk- prefix
+    return key.startsWith('sk-');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -33,13 +34,13 @@ const ApiKeyInput = ({ onSubmit }: ApiKeyInputProps) => {
     
     // Reject keys that start with sk-proj- (likely a project ID not an API key)
     if (trimmedKey.startsWith("sk-proj-")) {
-      setError("Invalid API key format. Please provide an OpenAI API key that starts with 'sk-' followed by 48 characters. This appears to be a project ID, not an API key.");
+      setError("Invalid API key format. Please provide an OpenAI API key that starts with 'sk-' followed by characters. This appears to be a project ID, not an API key.");
       toast.error("Please enter a valid OpenAI API key, not a project ID");
       return;
     }
     
     if (!validateApiKey(trimmedKey)) {
-      setError("Invalid API key format. OpenAI API keys start with 'sk-' followed by 48 characters.");
+      setError("Invalid API key format. OpenAI API keys start with 'sk-'.");
       toast.error("Please enter a valid OpenAI API key");
       return;
     }
@@ -97,7 +98,7 @@ const ApiKeyInput = ({ onSubmit }: ApiKeyInputProps) => {
             )}
             
             <p className="text-xs text-muted-foreground mt-2">
-              Your API key should start with <code className="bg-black/30 px-1 rounded">sk-</code> followed by 48 characters.
+              Your API key should start with <code className="bg-black/30 px-1 rounded">sk-</code>
             </p>
           </div>
 

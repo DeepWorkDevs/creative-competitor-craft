@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,8 +11,8 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   error: string | null;
-  login: (apiKey: string) => Promise<void>; // Add the login method for OpenAI API key
-  apiKey: string | null; // Add API key to the context
+  login: (apiKey: string) => Promise<void>; 
+  apiKey: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,7 +68,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, user]);
+  }, [navigate]);
 
   const signUp = async (email: string, password: string) => {
     setError(null);
@@ -123,7 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Add the login method for OpenAI API key
   const login = async (apiKey: string) => {
     // This is a simple implementation that just validates the API key format
-    if (!apiKey.startsWith("sk-") || apiKey.length < 50) {
+    if (!apiKey.startsWith("sk-")) {
       throw new Error("Invalid API key format");
     }
     
@@ -143,7 +142,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signIn,
     signOut,
     login,
-    apiKey,  // Add the API key to the context value
+    apiKey,
     error,
   };
 

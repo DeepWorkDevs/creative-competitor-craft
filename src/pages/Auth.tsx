@@ -31,8 +31,8 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-black via-black to-pirate-950">
       <div className="flex-1 flex flex-col items-center justify-center px-4">
-        <div className="mb-10">
-          <AdPirateLogo size={80} />
+        <div className="flex justify-center w-full mb-10">
+          <AdPirateLogo size={60} />
         </div>
 
         <div className="w-full max-w-md">
@@ -59,7 +59,7 @@ const Auth = () => {
               {" "}to create one.
             </p>
             <p className="text-xs text-white/60 mt-2">
-              Be sure to use a key that begins with "sk-" followed by 48 characters, not a project ID.
+              Be sure to use a key that begins with "sk-", not a project ID.
             </p>
           </div>
         </div>
