@@ -8,20 +8,25 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import GenerationResult from "@/components/GenerationResult";
 import AdPirateLogo from "@/components/AdPirateLogo";
 import AdAnalysisCard from "@/components/AdAnalysisCard";
+import ProjectInputSection from "@/components/ProjectInputSection";
 import { OpenAIService } from "@/services/openai";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [competitorImage, setCompetitorImage] = useState<string | null>(null);
-  const [projectImage, setProjectImage] = useState<string | null>(null);
+  const [projectImages, setProjectImages] = useState<string[]>([]);
+  const [projectWebsiteUrl, setProjectWebsiteUrl] = useState<string>("");
+  const [projectDescription, setProjectDescription] = useState<string>("");
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [currentInputMethod, setCurrentInputMethod] = useState<string>("images");
   
   useEffect(() => {
     // Check if API key is stored in localStorage
@@ -37,8 +42,19 @@ const Index = () => {
   };
 
   const handleGenerate = async () => {
-    if (!apiKey || !competitorImage || !projectImage) {
-      toast.error("Please upload both competitor and project images");
+    // Validate that we have a competitor image and at least one input for the project
+    if (!apiKey || !competitorImage) {
+      toast.error("Please upload a competitor image");
+      return;
+    }
+
+    const hasProjectData = 
+      (projectImages && projectImages.length > 0) || 
+      projectWebsiteUrl || 
+      projectDescription;
+      
+    if (!hasProjectData) {
+      toast.error("Please provide information about your project/offer");
       return;
     }
 
@@ -48,12 +64,20 @@ const Index = () => {
       
       // First generate the analysis
       setIsAnalyzing(true);
-      const analysisResult = await openai.analyzeImages(competitorImage, projectImage);
+      
+      // Create a project data object with all available inputs
+      const projectData = {
+        images: projectImages.length > 0 ? projectImages : undefined,
+        websiteUrl: projectWebsiteUrl || undefined,
+        description: projectDescription || undefined,
+      };
+      
+      const analysisResult = await openai.analyzeImagesAndCreateStrategy(competitorImage, projectData);
       setAnalysis(analysisResult);
       setIsAnalyzing(false);
       
       // Then generate the image
-      const imageUrl = await openai.generateAdCreative(competitorImage, projectImage, customPrompt);
+      const imageUrl = await openai.generateAdCreative(competitorImage, projectData, customPrompt);
       setGeneratedImageUrl(imageUrl);
     } catch (error) {
       console.error("Error generating content:", error);
@@ -65,10 +89,13 @@ const Index = () => {
 
   const resetForm = () => {
     setCompetitorImage(null);
-    setProjectImage(null);
+    setProjectImages([]);
+    setProjectWebsiteUrl("");
+    setProjectDescription("");
     setGeneratedImageUrl(null);
     setAnalysis(null);
     setCustomPrompt("");
+    setCurrentInputMethod("images");
   };
 
   if (!apiKey) {
@@ -105,8 +132,8 @@ const Index = () => {
                 Transform Competitors Into Customers
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Upload a competitor's screenshot and your project image to generate 
-                a compelling ad creative that will convert their users into yours.
+                Upload a competitor's screenshot and provide details about your project 
+                to generate a compelling ad creative that will convert their users into yours.
               </p>
             </div>
             
@@ -117,10 +144,10 @@ const Index = () => {
                 onImageUpload={setCompetitorImage}
               />
               
-              <ImageUpload
-                title="Your Project/Offer"
-                description="Upload an image of your project or offer"
-                onImageUpload={setProjectImage}
+              <ProjectInputSection 
+                onImagesUpload={setProjectImages}
+                onWebsiteUrlChange={setProjectWebsiteUrl}
+                onDescriptionChange={setProjectDescription}
               />
             </div>
             
@@ -158,7 +185,7 @@ const Index = () => {
                 <Button
                   size="lg"
                   onClick={handleGenerate}
-                  disabled={!competitorImage || !projectImage}
+                  disabled={!competitorImage || (!projectImages.length && !projectWebsiteUrl && !projectDescription)}
                   className="bg-pirate-500 hover:bg-pirate-600 text-white font-medium px-8"
                 >
                   Generate Ad Creative
@@ -184,10 +211,28 @@ const Index = () => {
                 transition={{ duration: 0.4, delay: 0.2 }}
                 className="p-4 rounded-lg glass-morphism"
               >
-                <h3 className="font-medium mb-2 text-gradient">Your Prompt</h3>
-                <p className="text-sm text-muted-foreground">
-                  {customPrompt || "Default prompt was used to generate this ad creative."}
-                </p>
+                <h3 className="font-medium mb-2 text-gradient">Your Input</h3>
+                
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  {projectImages.length > 0 && (
+                    <p>{projectImages.length} image{projectImages.length > 1 ? 's' : ''} uploaded</p>
+                  )}
+                  
+                  {projectWebsiteUrl && (
+                    <p>Website: {projectWebsiteUrl}</p>
+                  )}
+                  
+                  {projectDescription && (
+                    <p>Description provided</p>
+                  )}
+                  
+                  {customPrompt && (
+                    <div className="mt-3 pt-3 border-t border-white/10">
+                      <p className="font-medium text-white/80">Custom instructions:</p>
+                      <p className="italic">{customPrompt}</p>
+                    </div>
+                  )}
+                </div>
               </motion.div>
               
               <motion.div

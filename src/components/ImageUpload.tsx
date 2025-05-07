@@ -10,9 +10,16 @@ interface ImageUploadProps {
   description: string;
   onImageUpload: (image: string) => void;
   className?: string;
+  compact?: boolean;
 }
 
-const ImageUpload = ({ title, description, onImageUpload, className }: ImageUploadProps) => {
+const ImageUpload = ({ 
+  title, 
+  description, 
+  onImageUpload, 
+  className,
+  compact = false 
+}: ImageUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,6 +56,44 @@ const ImageUpload = ({ title, description, onImageUpload, className }: ImageUplo
       handleFile(e.dataTransfer.files[0]);
     }
   };
+
+  if (compact) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className={className}
+      >
+        <Card
+          className={`relative cursor-pointer overflow-hidden p-3 ${
+            isDragging ? "border-primary" : ""
+          } glass-morphism hover:shadow-lg transition-all duration-300 flex items-center justify-center`}
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <input
+            type="file"
+            className="hidden"
+            ref={fileInputRef}
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+              }
+            }}
+          />
+          
+          <div className="flex flex-col items-center justify-center text-center p-2">
+            <Upload className="h-6 w-6 text-pirate-400 mb-2" />
+            <p className="text-sm font-medium text-gradient">{title}</p>
+          </div>
+        </Card>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
