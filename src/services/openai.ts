@@ -1,5 +1,4 @@
 
-
 import { toast } from "sonner";
 
 const API_URL = "https://api.openai.com/v1";
@@ -29,36 +28,64 @@ export class OpenAIService {
       // Extract competitor brand name (simplified example)
       const competitorBrand = "Competitor";
       
-      // Build a structured prompt based on available data
-      let structuredPrompt = "Ad Creative Request:\n";
+      // Build a structured prompt based on the improved template
+      let structuredPrompt = "=== Ad Creative Clone Request ===\n\n";
       
-      // Style section based on competitor image
-      structuredPrompt += `- **Style**: Use a bold, minimalist style like ${competitorBrand}'s latest ads (see attached image).\n`;
-      
-      // Product section based on project data
+      // Reference Assets section
+      structuredPrompt += "Reference Assets:\n";
+      structuredPrompt += "  • STYLE_REF_IMAGE: attached competitor ad image\n";
       if (projectData.images && projectData.images.length > 0) {
-        structuredPrompt += "- **Product**: Show our product from the attached image as the main focus.\n";
-      } else {
-        structuredPrompt += "- **Product**: Create a compelling visual representation of our offering.\n";
+        structuredPrompt += "  • PRODUCT_REF_IMAGE: attached our product image\n";
       }
+      structuredPrompt += "\n";
       
-      // Text section including any user provided prompt
-      structuredPrompt += "- **Text**: ";
+      // Instructions section
+      structuredPrompt += "Instructions:\n";
+      
+      // 1. Layout & Composition
+      structuredPrompt += "  1. Layout & Composition\n";
+      structuredPrompt += "     - Copy the exact layout and proportions from STYLE_REF_IMAGE.\n";
+      structuredPrompt += "     - Preserve element positions: maintain the same structure of visual elements and text placement.\n";
+      structuredPrompt += "     - Maintain same padding, gutters, and safe-zone margins as STYLE_REF_IMAGE.\n\n";
+      
+      // 2. Typography & Text
+      structuredPrompt += "  2. Typography & Text\n";
+      structuredPrompt += "     - Match all font styles from STYLE_REF_IMAGE (weight, size, case, and spacing).\n";
+      
+      // Add custom text if provided, otherwise extract from description
       if (prompt) {
-        structuredPrompt += `Include text as specified: ${prompt}\n`;
+        structuredPrompt += `     - Use this text: "${prompt}"\n\n`;
       } else if (projectData.description) {
         // Extract key points from description (simplified)
-        structuredPrompt += `Include key messaging derived from our description: "${projectData.description.substring(0, 100)}..."\n`;
+        const shortDescription = projectData.description.substring(0, 100) + (projectData.description.length > 100 ? "..." : "");
+        structuredPrompt += `     - Use key messaging derived from our description: "${shortDescription}"\n\n`;
       } else {
-        structuredPrompt += "Include a compelling headline and call to action.\n";
+        structuredPrompt += "     - Include a compelling headline and call to action.\n\n";
       }
       
-      // Layout and Colors section
-      structuredPrompt += "- **Layout & Colors**: Create a clean, professional layout with balanced text and visuals. ";
-      structuredPrompt += "Use a black and white base with minimal purple accents for branding.\n";
+      // 3. Colors & Graphics
+      structuredPrompt += "  3. Colors & Graphics\n";
+      structuredPrompt += "     - Use black and white as the base colors with minimal purple accents (#8954ff) for branding.\n";
+      structuredPrompt += "     - Match the same button styles, icon treatments, and graphical elements from STYLE_REF_IMAGE.\n";
+      structuredPrompt += "     - Replicate any decorative shapes, shadows, and visual effects exactly.\n\n";
       
-      // Final instruction
-      structuredPrompt += "Generate a high-quality ad banner that will convert viewers into customers.";
+      // 4. Subject Swap
+      structuredPrompt += "  4. Subject Swap\n";
+      if (projectData.images && projectData.images.length > 0) {
+        structuredPrompt += "     - Remove the competitor product from STYLE_REF_IMAGE.\n";
+        structuredPrompt += "     - Insert PRODUCT_REF_IMAGE at the same scale, angle, and lighting style.\n";
+      } else {
+        structuredPrompt += "     - Create a compelling visual representation of our offering based on the description.\n";
+      }
+      structuredPrompt += "     - Ensure the product presentation matches the professional style of the original ad.\n\n";
+      
+      // 5. Output
+      structuredPrompt += "  5. Output\n";
+      structuredPrompt += "     - Generate one high-quality ad creative.\n";
+      structuredPrompt += "     - Ensure the final image looks like a polished, professional advertisement.\n";
+      structuredPrompt += "     - Make sure text is legible and the layout is balanced.\n\n";
+      
+      structuredPrompt += "==== End of Prompt ====";
       
       console.log("Generating image with prompt:", structuredPrompt);
 
@@ -69,7 +96,7 @@ export class OpenAIService {
           "Authorization": `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: "gpt-image-1", // Updated to use gpt-image-1 model
+          model: "gpt-image-1", // Using gpt-image-1 model
           prompt: structuredPrompt,
           n: 1,
           size: "1024x1024",
