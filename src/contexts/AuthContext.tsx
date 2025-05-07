@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +13,7 @@ type AuthContextType = {
   signOut: () => Promise<void>;
   error: string | null;
   login: (apiKey: string) => Promise<void>; // Add the login method for OpenAI API key
+  apiKey: string | null; // Add API key to the context
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,9 +23,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
   const navigate = useNavigate();
   
   useEffect(() => {
+    // Check for stored API key on mount
+    const storedApiKey = localStorage.getItem("openaiApiKey");
+    if (storedApiKey) {
+      setApiKey(storedApiKey);
+      // If we have an API key but no user, set a fake user to enable access
+      if (!user) {
+        setUser({ id: "openai-user", email: null, app_metadata: {}, user_metadata: {}, aud: "", created_at: "" });
+      }
+    }
+    
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
@@ -56,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, user]);
 
   const signUp = async (email: string, password: string) => {
     setError(null);
@@ -91,6 +104,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     setError(null);
     try {
+      // Clear the API key when signing out
+      localStorage.removeItem("openaiApiKey");
+      setApiKey(null);
+      
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error) {
@@ -106,16 +123,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Add the login method for OpenAI API key
   const login = async (apiKey: string) => {
     // This is a simple implementation that just validates the API key format
-    // In a real application, you might want to do more validation
     if (!apiKey.startsWith("sk-") || apiKey.length < 50) {
       throw new Error("Invalid API key format");
     }
     
-    // Store the key in localStorage (or you could store it in your AuthContext state)
+    // Store the key in localStorage and state
     localStorage.setItem("openaiApiKey", apiKey);
+    setApiKey(apiKey);
     
     // Update the user state to simulate a logged-in user
-    // This will allow the protected routes to work without actual authentication
     setUser({ id: "openai-user", email: null, app_metadata: {}, user_metadata: {}, aud: "", created_at: "" });
   };
 
@@ -126,7 +142,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signIn,
     signOut,
-    login,  // Add the login method to the context value
+    login,
+    apiKey,  // Add the API key to the context value
     error,
   };
 

@@ -25,10 +25,10 @@ const App = () => (
               <Route
                 path="/"
                 element={
-                  <>
+                  <ProtectedRoute>
                     <Navbar />
                     <Index />
-                  </>
+                  </ProtectedRoute>
                 }
               />
               <Route path="/auth" element={<Auth />} />

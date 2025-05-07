@@ -3,22 +3,28 @@ import { toast } from "sonner";
 
 const API_URL = "https://api.openai.com/v1";
 const MODEL = "gpt-4o"; // Using GPT-4o for vision capabilities
-const DEFAULT_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ""; // Replace with your actual API key
 
 export class OpenAIService {
   private apiKey: string;
 
   constructor(apiKey?: string) {
-    // Use the provided API key or fall back to the default
-    this.apiKey = apiKey || DEFAULT_API_KEY;
+    // First try using the provided API key
+    // Then try localStorage
+    // Then try the environment variable
+    const storedApiKey = localStorage.getItem("openaiApiKey");
+    const envApiKey = import.meta.env.VITE_OPENAI_API_KEY || "";
+    
+    this.apiKey = apiKey || storedApiKey || envApiKey;
     
     if (!this.apiKey) {
       console.warn("No API key provided to OpenAIService");
+      throw new Error("No API key provided. Please add your OpenAI API key to continue.");
     }
     
     // Validate API key format
-    if (this.apiKey && !this.validateApiKey(this.apiKey)) {
+    if (!this.validateApiKey(this.apiKey)) {
       console.error("Invalid API key format provided to OpenAIService");
+      throw new Error("Invalid API key format. OpenAI API keys start with 'sk-' followed by 48 characters.");
     }
   }
   

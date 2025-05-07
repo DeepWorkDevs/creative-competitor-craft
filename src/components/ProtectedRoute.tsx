@@ -13,7 +13,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    // Check for either a Supabase user or an OpenAI API key
+    const hasApiKey = localStorage.getItem("openaiApiKey");
+    
+    if (!isLoading && !user && !hasApiKey) {
       navigate("/auth");
     }
   }, [user, isLoading, navigate]);
@@ -26,7 +29,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  return user ? <>{children}</> : null;
+  // Allow access if we have a user OR an API key
+  const hasApiKey = localStorage.getItem("openaiApiKey");
+  return (user || hasApiKey) ? <>{children}</> : null;
 };
 
 export default ProtectedRoute;
