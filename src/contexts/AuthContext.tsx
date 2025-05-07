@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +11,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   error: string | null;
+  login: (apiKey: string) => Promise<void>; // Add the login method for OpenAI API key
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -103,6 +103,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Add the login method for OpenAI API key
+  const login = async (apiKey: string) => {
+    // This is a simple implementation that just validates the API key format
+    // In a real application, you might want to do more validation
+    if (!apiKey.startsWith("sk-") || apiKey.length < 50) {
+      throw new Error("Invalid API key format");
+    }
+    
+    // Store the key in localStorage (or you could store it in your AuthContext state)
+    localStorage.setItem("openaiApiKey", apiKey);
+    
+    // Update the user state to simulate a logged-in user
+    // This will allow the protected routes to work without actual authentication
+    setUser({ id: "openai-user", email: null, app_metadata: {}, user_metadata: {}, aud: "", created_at: "" });
+  };
+
   const value = {
     session,
     user,
@@ -110,6 +126,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signIn,
     signOut,
+    login,  // Add the login method to the context value
     error,
   };
 
