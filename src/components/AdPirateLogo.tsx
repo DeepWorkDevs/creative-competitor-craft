@@ -25,7 +25,7 @@ const AdPirateLogo = ({
       </motion.div>
       <div className="flex flex-col">
         <span className="tracking-tight text-white font-extrabold text-xl">AdPirate</span>
-        <span className="text-xs text-muted-foreground">Convert Your Competitors</span>
+        <span className="text-xs text-muted-foreground text-left">Smart Marketers Copy &amp; Paste</span>
       </div>
     </motion.div>;
 };
