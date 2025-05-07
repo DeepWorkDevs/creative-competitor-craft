@@ -22,19 +22,34 @@ const Navbar = () => {
           <AdPirateLogo />
         </Link>
 
+        <div className="hidden md:flex items-center gap-6">
+          <Link to="/features" className="text-sm font-medium text-muted-foreground hover:text-white transition-colors">
+            Features
+          </Link>
+          <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-white transition-colors">
+            Pricing
+          </Link>
+          <Link to="/contact" className="text-sm font-medium text-muted-foreground hover:text-white transition-colors">
+            Contact
+          </Link>
+          <Link to="/discord" className="text-sm font-medium text-muted-foreground hover:text-white transition-colors">
+            Discord
+          </Link>
+        </div>
+
         <div className="flex items-center gap-4">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="rounded-full" size="icon">
                   <Avatar>
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                    <AvatarFallback className="bg-mediaglobal-purple text-primary-foreground">
                       {user.email ? user.email[0].toUpperCase() : "U"}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="bg-mediaglobal-dark-gray border border-white/10">
                 <DropdownMenuItem disabled className="opacity-70">
                   <User className="mr-2 h-4 w-4" />
                   <span>{user.email}</span>
@@ -46,9 +61,14 @@ const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button asChild>
-              <Link to="/auth">Login</Link>
-            </Button>
+            <>
+              <Button asChild variant="ghost" className="hidden md:flex">
+                <Link to="/auth">Login</Link>
+              </Button>
+              <Button asChild className="purple-gradient-bg hover:opacity-90 border-none">
+                <Link to="/auth?action=signup">Get Started</Link>
+              </Button>
+            </>
           )}
         </div>
       </div>

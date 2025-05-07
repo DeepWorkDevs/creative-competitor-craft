@@ -76,6 +76,14 @@ export default {
 					800: '#3730a3',
 					900: '#312e81',
 					950: '#1e1b4b',
+				},
+				mediaglobal: {
+					purple: '#8954ff',
+					'deep-purple': '#6c00ff',
+					'light-purple': '#a87bff',
+					black: '#0d0717',
+					'dark-gray': '#1A1F2C',
+					white: '#ffffff',
 				}
 			},
 			borderRadius: {

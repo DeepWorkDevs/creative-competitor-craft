@@ -16,7 +16,7 @@ const AdPirateLogo = ({ className = "" }: AdPirateLogoProps) => {
       <motion.div 
         whileHover={{ rotate: [0, -10, 10, -10, 0] }}
         transition={{ duration: 0.5 }}
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-pirate-500 to-pirate-700"
+        className="flex items-center justify-center w-10 h-10 rounded-full purple-gradient-bg"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
@@ -33,7 +33,7 @@ const AdPirateLogo = ({ className = "" }: AdPirateLogoProps) => {
         </svg>
       </motion.div>
       <div className="flex flex-col">
-        <span className="font-bold text-xl tracking-tight text-gradient">AdPirate</span>
+        <span className="font-bold text-xl tracking-tight text-gradient">MediaGlobe</span>
         <span className="text-xs text-muted-foreground">Convert Your Competitors</span>
       </div>
     </motion.div>

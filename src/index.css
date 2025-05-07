@@ -5,33 +5,33 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
+    --background: 260 70% 7%;
     --foreground: 0 0% 98%;
     
-    --card: 240 10% 3.9%;
+    --card: 260 70% 10%;
     --card-foreground: 0 0% 98%;
     
-    --popover: 240 10% 3.9%;
+    --popover: 260 70% 7%;
     --popover-foreground: 0 0% 98%;
     
-    --primary: 252 63% 67%;
+    --primary: 265 100% 70%;
     --primary-foreground: 0 0% 98%;
     
-    --secondary: 240 5.9% 10%;
+    --secondary: 260 30% 15%;
     --secondary-foreground: 0 0% 98%;
     
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 260 30% 15%;
+    --muted-foreground: 0 0% 70%;
     
-    --accent: 240 3.7% 15.9%;
+    --accent: 265 100% 80%;
     --accent-foreground: 0 0% 98%;
     
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --border: 260 20% 20%;
+    --input: 260 20% 20%;
+    --ring: 265 100% 70%;
     
     --radius: 0.75rem;
   }
@@ -44,6 +44,8 @@
   
   body {
     @apply bg-background text-foreground antialiased;
+    background: linear-gradient(to bottom, #0d0717, #1A1F2C);
+    min-height: 100vh;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
 
@@ -67,6 +69,24 @@
   }
   
   .text-gradient {
-    @apply bg-gradient-to-br from-pirate-300 via-pirate-400 to-pirate-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-br from-mediaglobal-purple via-mediaglobal-light-purple to-mediaglobal-deep-purple bg-clip-text text-transparent;
   }
+
+  .purple-gradient-bg {
+    background: linear-gradient(135deg, #8954ff 0%, #6c00ff 100%);
+  }
+
+  .card-gradient {
+    background: linear-gradient(145deg, rgba(26, 31, 44, 0.8) 0%, rgba(13, 7, 23, 0.6) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .check-icon {
+    @apply text-mediaglobal-purple;
+  }
+}
+
+#root {
+  width: 100%;
+  margin: 0 auto;
 }

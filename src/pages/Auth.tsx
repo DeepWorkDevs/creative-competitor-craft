@@ -14,6 +14,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import AdPirateLogo from "@/components/AdPirateLogo";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -29,6 +31,17 @@ const Auth = () => {
   const { signIn, signUp, error } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Set active tab based on URL parameter
+    const params = new URLSearchParams(location.search);
+    const action = params.get('action');
+    if (action === 'signup') {
+      setActiveTab('signup');
+    }
+  }, [location]);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -51,6 +64,7 @@ const Auth = () => {
     try {
       await signIn(values.email, values.password);
       toast.success("Logged in successfully");
+      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
       // The error is displayed by the AuthContext
@@ -75,27 +89,27 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-background/80 p-4">
-      <div className="max-w-md w-full space-y-6 bg-card p-6 rounded-xl shadow-lg border border-border/50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-mediaglobal-black to-mediaglobal-dark-gray p-4">
+      <div className="max-w-md w-full space-y-6 card-gradient p-6 rounded-xl shadow-lg">
         <div className="flex justify-center">
           <AdPirateLogo />
         </div>
         
-        <h1 className="text-2xl font-bold text-center text-gradient">Welcome to AdPirate</h1>
+        <h1 className="text-2xl font-bold text-center text-gradient">Welcome to MediaGlobe</h1>
         
         <Tabs 
           value={activeTab} 
           onValueChange={(value) => setActiveTab(value as "login" | "signup")}
           className="w-full"
         >
-          <TabsList className="grid grid-cols-2 mb-6">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          <TabsList className="grid grid-cols-2 mb-6 bg-black/30">
+            <TabsTrigger value="login" className="data-[state=active]:bg-mediaglobal-purple data-[state=active]:text-white">Login</TabsTrigger>
+            <TabsTrigger value="signup" className="data-[state=active]:bg-mediaglobal-purple data-[state=active]:text-white">Sign Up</TabsTrigger>
           </TabsList>
           
           <TabsContent value="login">
             {error && (
-              <Alert variant="destructive" className="mb-4">
+              <Alert variant="destructive" className="mb-4 bg-red-500/10 border-red-500/30">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -110,7 +124,7 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="your.email@example.com" {...field} />
+                        <Input placeholder="your.email@example.com" {...field} className="bg-black/30 border-white/10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -124,7 +138,7 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder="••••••••" {...field} className="bg-black/30 border-white/10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -149,7 +163,7 @@ const Auth = () => {
           
           <TabsContent value="signup">
             {error && (
-              <Alert variant="destructive" className="mb-4">
+              <Alert variant="destructive" className="mb-4 bg-red-500/10 border-red-500/30">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -164,7 +178,7 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="your.email@example.com" {...field} />
+                        <Input placeholder="your.email@example.com" {...field} className="bg-black/30 border-white/10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -178,7 +192,7 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder="••••••••" {...field} className="bg-black/30 border-white/10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
