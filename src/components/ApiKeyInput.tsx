@@ -31,6 +31,13 @@ const ApiKeyInput = ({ onSubmit }: ApiKeyInputProps) => {
       return;
     }
     
+    // Reject keys that start with sk-proj- (likely a project ID not an API key)
+    if (trimmedKey.startsWith("sk-proj-")) {
+      setError("Invalid API key format. Please provide an OpenAI API key that starts with 'sk-' followed by 48 characters. This appears to be a project ID, not an API key.");
+      toast.error("Please enter a valid OpenAI API key, not a project ID");
+      return;
+    }
+    
     if (!validateApiKey(trimmedKey)) {
       setError("Invalid API key format. OpenAI API keys start with 'sk-' followed by 48 characters.");
       toast.error("Please enter a valid OpenAI API key");
@@ -39,6 +46,7 @@ const ApiKeyInput = ({ onSubmit }: ApiKeyInputProps) => {
     
     setError(null);
     onSubmit(trimmedKey);
+    toast.success("API key successfully added");
   };
 
   return (

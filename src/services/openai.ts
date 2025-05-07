@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 const API_URL = "https://api.openai.com/v1";
 const MODEL = "gpt-4o"; // Using GPT-4o for vision capabilities
-const DEFAULT_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || "your-api-key-here"; // Replace with your actual API key
+const DEFAULT_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ""; // Replace with your actual API key
 
 export class OpenAIService {
   private apiKey: string;
@@ -11,6 +11,20 @@ export class OpenAIService {
   constructor(apiKey?: string) {
     // Use the provided API key or fall back to the default
     this.apiKey = apiKey || DEFAULT_API_KEY;
+    
+    if (!this.apiKey) {
+      console.warn("No API key provided to OpenAIService");
+    }
+    
+    // Validate API key format
+    if (this.apiKey && !this.validateApiKey(this.apiKey)) {
+      console.error("Invalid API key format provided to OpenAIService");
+    }
+  }
+  
+  private validateApiKey(key: string): boolean {
+    // OpenAI API keys typically start with 'sk-' and are 51 characters long
+    return /^sk-[A-Za-z0-9]{48}$/.test(key);
   }
 
   async generateAdCreative(
@@ -25,8 +39,14 @@ export class OpenAIService {
     try {
       console.log("Starting ad creative generation...");
       
-      // Extract competitor brand name (simplified example)
-      const competitorBrand = "Competitor";
+      // Validate the API key before making the request
+      if (!this.apiKey) {
+        throw new Error("No API key provided. Please add your OpenAI API key to continue.");
+      }
+      
+      if (!this.validateApiKey(this.apiKey)) {
+        throw new Error("Invalid API key format. OpenAI API keys start with 'sk-' followed by 48 characters.");
+      }
       
       // Build a structured prompt based on the improved template
       let structuredPrompt = "=== Ad Creative Clone Request ===\n\n";

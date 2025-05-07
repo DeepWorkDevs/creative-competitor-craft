@@ -1,221 +1,73 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ApiKeyInput from "@/components/ApiKeyInput";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import AdPirateLogo from "@/components/AdPirateLogo";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-
-const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-});
-
-const signupSchema = loginSchema;
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-type SignupFormValues = z.infer<typeof signupSchema>;
 
 const Auth = () => {
-  const { signIn, signUp, error } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
-  const location = useLocation();
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    // Set active tab based on URL parameter
-    const params = new URLSearchParams(location.search);
-    const action = params.get('action');
-    if (action === 'signup') {
-      setActiveTab('signup');
-    }
-  }, [location]);
-
-  const loginForm = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const signupForm = useForm<SignupFormValues>({
-    resolver: zodResolver(signupSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const handleLogin = async (values: LoginFormValues) => {
-    setIsLoading(true);
+  const handleApiKeySubmit = async (apiKey: string) => {
+    setIsSubmitting(true);
     try {
-      await signIn(values.email, values.password);
-      toast.success("Logged in successfully");
+      // Store API key
+      localStorage.setItem("openaiApiKey", apiKey);
+      
+      // Login user
+      await login(apiKey);
+      
+      // Redirect to home page
       navigate("/");
     } catch (error) {
-      console.error("Login error:", error);
-      // The error is displayed by the AuthContext
+      console.error("Authentication failed:", error);
     } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSignup = async (values: SignupFormValues) => {
-    setIsLoading(true);
-    try {
-      await signUp(values.email, values.password);
-      toast.success("Account created! You can now log in.");
-      setActiveTab("login");
-      signupForm.reset();
-    } catch (error) {
-      console.error("Signup error:", error);
-      // The error is displayed by the AuthContext
-    } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-mediaglobal-black to-mediaglobal-dark-gray p-4">
-      <div className="max-w-md w-full space-y-6 card-gradient p-6 rounded-xl shadow-lg">
-        <div className="flex justify-center">
-          <AdPirateLogo />
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-black via-black to-pirate-950">
+      <div className="flex-1 flex flex-col items-center justify-center px-4">
+        <div className="mb-10">
+          <AdPirateLogo size={80} />
         </div>
-        
-        <h1 className="text-2xl font-bold text-center text-gradient">Welcome to MediaGlobe</h1>
-        
-        <Tabs 
-          value={activeTab} 
-          onValueChange={(value) => setActiveTab(value as "login" | "signup")}
-          className="w-full"
-        >
-          <TabsList className="grid grid-cols-2 mb-6 bg-black/30">
-            <TabsTrigger value="login" className="data-[state=active]:bg-mediaglobal-purple data-[state=active]:text-white">Login</TabsTrigger>
-            <TabsTrigger value="signup" className="data-[state=active]:bg-mediaglobal-purple data-[state=active]:text-white">Sign Up</TabsTrigger>
-          </TabsList>
+
+        <div className="w-full max-w-md">
+          {isSubmitting ? (
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pirate-500 mx-auto mb-4"></div>
+              <p className="text-white">Authenticating...</p>
+            </div>
+          ) : (
+            <ApiKeyInput onSubmit={handleApiKeySubmit} />
+          )}
           
-          <TabsContent value="login">
-            {error && (
-              <Alert variant="destructive" className="mb-4 bg-red-500/10 border-red-500/30">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            
-            <Form {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
-                <FormField
-                  control={loginForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="your.email@example.com" {...field} className="bg-black/30 border-white/10" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={loginForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} className="bg-black/30 border-white/10" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                      Logging in...
-                    </>
-                  ) : "Login"}
-                </Button>
-              </form>
-            </Form>
-          </TabsContent>
-          
-          <TabsContent value="signup">
-            {error && (
-              <Alert variant="destructive" className="mb-4 bg-red-500/10 border-red-500/30">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            
-            <Form {...signupForm}>
-              <form onSubmit={signupForm.handleSubmit(handleSignup)} className="space-y-4">
-                <FormField
-                  control={signupForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="your.email@example.com" {...field} className="bg-black/30 border-white/10" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={signupForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} className="bg-black/30 border-white/10" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                      Creating account...
-                    </>
-                  ) : "Create Account"}
-                </Button>
-              </form>
-            </Form>
-          </TabsContent>
-        </Tabs>
+          <div className="mt-8 text-center">
+            <p className="text-sm text-white/60">
+              Need an OpenAI API key? Visit{" "}
+              <a 
+                href="https://platform.openai.com/api-keys" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-pirate-400 hover:text-pirate-300 underline underline-offset-2"
+              >
+                platform.openai.com/api-keys
+              </a>
+              {" "}to create one.
+            </p>
+            <p className="text-xs text-white/60 mt-2">
+              Be sure to use a key that begins with "sk-" followed by 48 characters, not a project ID.
+            </p>
+          </div>
+        </div>
       </div>
+      
+      <footer className="py-4 text-center text-sm text-white/40">
+        <p>MediaGlobe © {new Date().getFullYear()}</p>
+      </footer>
     </div>
   );
 };
