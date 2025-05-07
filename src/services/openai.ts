@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 const API_URL = "https://api.openai.com/v1";
@@ -57,7 +58,7 @@ export class OpenAIService {
           "Authorization": `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: "dall-e-3",
+          model: "gpt-image-1", // Updated to use new GPT image model
           prompt: enhancedPrompt,
           n: 1,
           size: "1024x1024",
