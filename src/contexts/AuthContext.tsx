@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -125,7 +124,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Add the login method for OpenAI API key
+  // Update the login method for OpenAI API key with simpler validation
   const login = async (apiKey: string) => {
     console.log("Logging in with API key");
     // Basic validation - just check for sk- prefix

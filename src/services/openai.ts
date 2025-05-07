@@ -21,15 +21,15 @@ export class OpenAIService {
       throw new Error("No API key provided. Please add your OpenAI API key to continue.");
     }
     
-    // Validate API key format - just check for sk- prefix
+    // Simple validation - just check for sk- prefix
     if (!this.apiKey.startsWith('sk-')) {
       console.error("Invalid API key format provided to OpenAIService");
       throw new Error("Invalid API key format. OpenAI API keys start with 'sk-'.");
     }
   }
   
+  // Use a more relaxed validation for API keys
   private validateApiKey(key: string): boolean {
-    // Simple validation - just check for the sk- prefix
     return key.startsWith('sk-');
   }
 

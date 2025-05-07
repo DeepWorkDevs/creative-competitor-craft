@@ -14,6 +14,11 @@ const Auth = () => {
   const handleApiKeySubmit = async (apiKey: string) => {
     setIsSubmitting(true);
     try {
+      // Basic validation - just check for sk- prefix
+      if (!apiKey.startsWith('sk-')) {
+        throw new Error("Invalid API key format. OpenAI API keys start with 'sk-'.");
+      }
+      
       // Store API key
       localStorage.setItem("openaiApiKey", apiKey);
       
