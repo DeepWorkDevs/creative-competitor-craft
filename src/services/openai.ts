@@ -1,4 +1,5 @@
 
+
 import { toast } from "sonner";
 
 const API_URL = "https://api.openai.com/v1";
@@ -25,31 +26,41 @@ export class OpenAIService {
     try {
       console.log("Starting ad creative generation...");
       
-      // Build a dynamic prompt based on available data
-      let enhancedPrompt = `Create a professional, high-converting ad creative. `;
+      // Extract competitor brand name (simplified example)
+      const competitorBrand = "Competitor";
       
-      // Add competitor image context
-      enhancedPrompt += `The first image shows a competitor's app/product. `;
+      // Build a structured prompt based on available data
+      let structuredPrompt = "Ad Creative Request:\n";
       
-      // Add project context based on what's available
+      // Style section based on competitor image
+      structuredPrompt += `- **Style**: Use a bold, minimalist style like ${competitorBrand}'s latest ads (see attached image).\n`;
+      
+      // Product section based on project data
       if (projectData.images && projectData.images.length > 0) {
-        enhancedPrompt += `The following ${projectData.images.length > 1 ? 'images show' : 'image shows'} my project/offer. `;
-      }
-      if (projectData.websiteUrl) {
-        enhancedPrompt += `My website is at ${projectData.websiteUrl}. `;
-      }
-      if (projectData.description) {
-        enhancedPrompt += `My project description: ${projectData.description}. `;
+        structuredPrompt += "- **Product**: Show our product from the attached image as the main focus.\n";
+      } else {
+        structuredPrompt += "- **Product**: Create a compelling visual representation of our offering.\n";
       }
       
-      // Add user's custom prompt
+      // Text section including any user provided prompt
+      structuredPrompt += "- **Text**: ";
       if (prompt) {
-        enhancedPrompt += prompt;
+        structuredPrompt += `Include text as specified: ${prompt}\n`;
+      } else if (projectData.description) {
+        // Extract key points from description (simplified)
+        structuredPrompt += `Include key messaging derived from our description: "${projectData.description.substring(0, 100)}..."\n`;
       } else {
-        enhancedPrompt += "Make it stunning, persuasive, and modern. Highlight the unique value proposition.";
+        structuredPrompt += "Include a compelling headline and call to action.\n";
       }
-
-      console.log("Generating image with prompt:", enhancedPrompt);
+      
+      // Layout and Colors section
+      structuredPrompt += "- **Layout & Colors**: Create a clean, professional layout with balanced text and visuals. ";
+      structuredPrompt += "Use a black and white base with minimal purple accents for branding.\n";
+      
+      // Final instruction
+      structuredPrompt += "Generate a high-quality ad banner that will convert viewers into customers.";
+      
+      console.log("Generating image with prompt:", structuredPrompt);
 
       const response = await fetch(`${API_URL}/images/generations`, {
         method: "POST",
@@ -58,8 +69,8 @@ export class OpenAIService {
           "Authorization": `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: "gpt-image-1", // Updated to use new GPT image model
-          prompt: enhancedPrompt,
+          model: "gpt-image-1", // Updated to use gpt-image-1 model
+          prompt: structuredPrompt,
           n: 1,
           size: "1024x1024",
           quality: "hd",
