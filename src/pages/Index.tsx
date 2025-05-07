@@ -1,8 +1,6 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import ApiKeyInput from "@/components/ApiKeyInput";
 import ImageUpload from "@/components/ImageUpload";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import GenerationResult from "@/components/GenerationResult";
@@ -15,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const Index = () => {
-  const [apiKey, setApiKey] = useState<string | null>(null);
   const [competitorImage, setCompetitorImage] = useState<string | null>(null);
   const [projectImages, setProjectImages] = useState<string[]>([]);
   const [projectWebsiteUrl, setProjectWebsiteUrl] = useState<string>("");
@@ -27,19 +24,6 @@ const Index = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [currentInputMethod, setCurrentInputMethod] = useState<string>("images");
   const [error, setError] = useState<string | null>(null);
-  
-  useEffect(() => {
-    // Check if API key is stored in localStorage
-    const storedKey = localStorage.getItem("openai_api_key");
-    if (storedKey) {
-      setApiKey(storedKey);
-    }
-  }, []);
-
-  const handleApiKeySubmit = (key: string) => {
-    setApiKey(key);
-    localStorage.setItem("openai_api_key", key);
-  };
 
   const handleGenerate = async (e: React.FormEvent) => {
     // Prevent default form submission behavior which can cause page refresh
@@ -49,7 +33,7 @@ const Index = () => {
     setError(null);
     
     // Validate that we have a competitor image and at least one input for the project
-    if (!apiKey || !competitorImage) {
+    if (!competitorImage) {
       toast.error("Please upload a competitor image");
       return;
     }
@@ -67,7 +51,7 @@ const Index = () => {
     try {
       console.log("Starting generation process...");
       setIsGenerating(true);
-      const openai = new OpenAIService(apiKey);
+      const openai = new OpenAIService(); // No need to pass API key
       
       // First generate the analysis
       setIsAnalyzing(true);
@@ -101,7 +85,7 @@ const Index = () => {
     } catch (error) {
       console.error("Error generating content:", error);
       setError(error instanceof Error ? error.message : "Unknown error occurred");
-      toast.error("Failed to generate content. Please check your API key and try again.");
+      toast.error("Failed to generate content. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -118,10 +102,6 @@ const Index = () => {
     setCurrentInputMethod("images");
     setError(null);
   };
-
-  if (!apiKey) {
-    return <ApiKeyInput onSubmit={handleApiKeySubmit} />;
-  }
 
   return (
     <div className="min-h-screen flex flex-col pb-10">

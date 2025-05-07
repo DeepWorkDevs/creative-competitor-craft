@@ -2,12 +2,14 @@ import { toast } from "sonner";
 
 const API_URL = "https://api.openai.com/v1";
 const MODEL = "gpt-4o"; // Using GPT-4o for vision capabilities
+const DEFAULT_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || "your-api-key-here"; // Replace with your actual API key
 
 export class OpenAIService {
   private apiKey: string;
 
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
+  constructor(apiKey?: string) {
+    // Use the provided API key or fall back to the default
+    this.apiKey = apiKey || DEFAULT_API_KEY;
   }
 
   async generateAdCreative(
