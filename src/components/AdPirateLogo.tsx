@@ -17,7 +17,7 @@ const AdPirateLogo = ({
       rotate: [0, -10, 10, -10, 0]
     }} transition={{
       duration: 0.5
-    }} className="flex items-center justify-center w-10 h-10 rounded-full bg-white text-black">
+    }} className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
           <path d="M12 2L2 7l10 5 10-5-10-5z" />
           <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />

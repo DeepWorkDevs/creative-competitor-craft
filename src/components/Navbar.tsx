@@ -1,22 +1,16 @@
-
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import AdPirateLogo from "@/components/AdPirateLogo";
-
 const Navbar = () => {
-  const { user, signOut } = useAuth();
-
-  return (
-    <header className="p-4 sm:p-6 sticky top-0 z-10 backdrop-blur bg-background/80 border-b border-white/10">
+  const {
+    user,
+    signOut
+  } = useAuth();
+  return <header className="p-4 sm:p-6 sticky top-0 z-10 backdrop-blur bg-background/80 border-b border-white/10 py-[9px]">
       <div className="container max-w-7xl flex justify-between items-center">
         <Link to="/">
           <AdPirateLogo />
@@ -38,8 +32,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          {user ? (
-            <DropdownMenu>
+          {user ? <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="rounded-full" size="icon">
                   <Avatar>
@@ -59,21 +52,16 @@ const Navbar = () => {
                   <span>Logout</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
+            </DropdownMenu> : <>
               <Button asChild variant="ghost" className="hidden md:flex">
                 <Link to="/auth">Login</Link>
               </Button>
               <Button asChild className="purple-gradient-bg hover:opacity-90 border-none">
                 <Link to="/auth?action=signup">Get Started</Link>
               </Button>
-            </>
-          )}
+            </>}
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default Navbar;
