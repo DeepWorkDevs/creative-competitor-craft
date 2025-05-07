@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 const API_URL = "https://api.openai.com/v1";
@@ -16,19 +17,19 @@ export class OpenAIService {
     this.apiKey = apiKey || storedApiKey || envApiKey;
     
     if (!this.apiKey) {
-      console.warn("No API key provided to OpenAIService");
+      console.error("No API key provided to OpenAIService");
       throw new Error("No API key provided. Please add your OpenAI API key to continue.");
     }
     
-    // Validate API key format
-    if (!this.validateApiKey(this.apiKey)) {
+    // Validate API key format - just check for sk- prefix
+    if (!this.apiKey.startsWith('sk-')) {
       console.error("Invalid API key format provided to OpenAIService");
       throw new Error("Invalid API key format. OpenAI API keys start with 'sk-'.");
     }
   }
   
   private validateApiKey(key: string): boolean {
-    // Relaxed validation - just check for the sk- prefix
+    // Simple validation - just check for the sk- prefix
     return key.startsWith('sk-');
   }
 

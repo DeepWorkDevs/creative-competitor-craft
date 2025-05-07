@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ApiKeyInput from "@/components/ApiKeyInput";
 import { useAuth } from "@/contexts/AuthContext";
 import AdPirateLogo from "@/components/AdPirateLogo";
+import { toast } from "sonner";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -18,11 +19,13 @@ const Auth = () => {
       
       // Login user
       await login(apiKey);
+      toast.success("Successfully authenticated");
       
       // Redirect to home page
       navigate("/");
     } catch (error) {
       console.error("Authentication failed:", error);
+      toast.error("Authentication failed: " + (error instanceof Error ? error.message : "Unknown error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -30,7 +33,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-black via-black to-pirate-950">
-      <div className="flex-1 flex flex-col items-center justify-center px-4">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pt-12">
         <div className="flex justify-center w-full mb-10">
           <AdPirateLogo size={60} />
         </div>
@@ -59,7 +62,7 @@ const Auth = () => {
               {" "}to create one.
             </p>
             <p className="text-xs text-white/60 mt-2">
-              Be sure to use a key that begins with "sk-", not a project ID.
+              Be sure to use a key that begins with "sk-".
             </p>
           </div>
         </div>

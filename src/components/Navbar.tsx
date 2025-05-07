@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
@@ -5,18 +6,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import AdPirateLogo from "@/components/AdPirateLogo";
+
 const Navbar = () => {
-  const {
-    user,
-    signOut
-  } = useAuth();
-  return <header className="p-4 sm:p-6 sticky top-0 z-10 backdrop-blur bg-background/80 border-b border-white/10 py-0 px-[11px]">
-      <div className="container max-w-7xl flex justify-between items-center py-0">
+  const { user, signOut } = useAuth();
+  
+  return (
+    <header className="p-4 sm:p-6 sticky top-0 z-10 backdrop-blur bg-background/80 border-b border-white/10">
+      <div className="container max-w-7xl flex justify-between items-center">
         <Link to="/">
           <AdPirateLogo />
         </Link>
 
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-8">
           <Link to="/features" className="text-sm font-medium text-muted-foreground hover:text-white transition-colors">
             Features
           </Link>
@@ -32,36 +33,42 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          {user ? <DropdownMenu>
+          {user ? (
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="rounded-full" size="icon">
+                <Button variant="ghost" className="rounded-full h-10 w-10 p-0" size="icon">
                   <Avatar>
-                    <AvatarFallback className="bg-mediaglobal-purple text-primary-foreground">
+                    <AvatarFallback className="bg-purple-600 text-primary-foreground">
                       {user.email ? user.email[0].toUpperCase() : "U"}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-mediaglobal-dark-gray border border-white/10">
+              <DropdownMenuContent align="end" className="bg-zinc-900 border border-white/10">
                 <DropdownMenuItem disabled className="opacity-70">
                   <User className="mr-2 h-4 w-4" />
-                  <span>{user.email}</span>
+                  <span>{user.email || "OpenAI User"}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Logout</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu> : <>
+            </DropdownMenu>
+          ) : (
+            <>
               <Button asChild variant="ghost" className="hidden md:flex">
                 <Link to="/auth">Login</Link>
               </Button>
               <Button asChild className="purple-gradient-bg hover:opacity-90 border-none">
                 <Link to="/auth?action=signup">Get Started</Link>
               </Button>
-            </>}
+            </>
+          )}
         </div>
       </div>
-    </header>;
+    </header>
+  );
 };
+
 export default Navbar;

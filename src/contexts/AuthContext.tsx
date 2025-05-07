@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,11 +30,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Check for stored API key on mount
     const storedApiKey = localStorage.getItem("openaiApiKey");
     if (storedApiKey) {
+      console.log("Found stored API key");
       setApiKey(storedApiKey);
       // If we have an API key but no user, set a fake user to enable access
       if (!user) {
-        setUser({ id: "openai-user", email: null, app_metadata: {}, user_metadata: {}, aud: "", created_at: "" });
+        console.log("Setting OpenAI user");
+        setUser({ id: "openai-user", email: "openai@user.com", app_metadata: {}, user_metadata: {}, aud: "", created_at: "" });
       }
+    } else {
+      console.log("No stored API key found");
     }
     
     // Set up auth state listener first
@@ -106,6 +111,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Clear the API key when signing out
       localStorage.removeItem("openaiApiKey");
       setApiKey(null);
+      setUser(null);
       
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -121,9 +127,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Add the login method for OpenAI API key
   const login = async (apiKey: string) => {
-    // This is a simple implementation that just validates the API key format
+    console.log("Logging in with API key");
+    // Basic validation - just check for sk- prefix
     if (!apiKey.startsWith("sk-")) {
-      throw new Error("Invalid API key format");
+      throw new Error("Invalid API key format - must start with sk-");
     }
     
     // Store the key in localStorage and state
@@ -131,7 +138,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setApiKey(apiKey);
     
     // Update the user state to simulate a logged-in user
-    setUser({ id: "openai-user", email: null, app_metadata: {}, user_metadata: {}, aud: "", created_at: "" });
+    setUser({ 
+      id: "openai-user", 
+      email: "openai@user.com", 
+      app_metadata: {}, 
+      user_metadata: {}, 
+      aud: "", 
+      created_at: "" 
+    });
+    
+    console.log("Login successful, user set");
   };
 
   const value = {

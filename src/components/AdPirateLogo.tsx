@@ -10,7 +10,7 @@ const AdPirateLogo = ({
   className = "",
   size = 40
 }: AdPirateLogoProps) => {
-  const iconSize = size / 5;
+  const iconSize = size >= 60 ? 60 : 40;
   const textSizeClass = size >= 60 ? "text-3xl" : "text-2xl";
   
   return (
@@ -23,7 +23,7 @@ const AdPirateLogo = ({
       <motion.div
         whileHover={{ rotate: [0, -10, 10, -10, 0] }}
         transition={{ duration: 0.5 }}
-        style={{ width: `${iconSize}rem`, height: `${iconSize}rem` }}
+        style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
         className="flex items-center justify-center"
       >
         <svg 
@@ -41,7 +41,7 @@ const AdPirateLogo = ({
         </svg>
       </motion.div>
       <div className="flex flex-col">
-        <span className={`tracking-tight text-white font-extrabold ${textSizeClass}`}>AdPirate</span>
+        <span className={`tracking-tight text-white font-bold ${textSizeClass}`}>AdPirate</span>
         <span className="text-xs text-muted-foreground text-left">Smart Marketers Copy &amp; Paste</span>
       </div>
     </motion.div>

@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -11,12 +11,14 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
-
+  const [hasApiKey, setHasApiKey] = useState<boolean>(false);
+  
   useEffect(() => {
     // Check for either a Supabase user or an OpenAI API key
-    const hasApiKey = localStorage.getItem("openaiApiKey");
+    const apiKey = localStorage.getItem("openaiApiKey");
+    setHasApiKey(!!apiKey && apiKey.startsWith("sk-"));
     
-    if (!isLoading && !user && !hasApiKey) {
+    if (!isLoading && !user && !apiKey) {
       navigate("/auth");
     }
   }, [user, isLoading, navigate]);
@@ -30,7 +32,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   // Allow access if we have a user OR an API key
-  const hasApiKey = localStorage.getItem("openaiApiKey");
   return (user || hasApiKey) ? <>{children}</> : null;
 };
 
