@@ -12,9 +12,9 @@ const WebsitePreview = ({ url }: WebsitePreviewProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const sanitizedUrl = url.startsWith('http') ? url : `https://${url}`;
   
-  // In a real implementation, we would scrape the website and show a preview
-  // For now, we'll just simulate loading and then show an iframe
+  // Reset loading state when URL changes
   useEffect(() => {
+    setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1500);

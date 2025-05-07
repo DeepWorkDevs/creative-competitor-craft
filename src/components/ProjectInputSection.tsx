@@ -66,7 +66,7 @@ const ProjectInputSection = ({
       <div className="p-6">
         <h3 className="text-lg font-medium mb-4 text-gradient">Your Project/Offer</h3>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid grid-cols-3 gap-2 w-full">
             <TabsTrigger value="images" className="flex items-center gap-2">
               <Images className="h-4 w-4" />
