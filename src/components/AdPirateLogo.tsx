@@ -16,7 +16,7 @@ const AdPirateLogo = ({ className = "" }: AdPirateLogoProps) => {
       <motion.div 
         whileHover={{ rotate: [0, -10, 10, -10, 0] }}
         transition={{ duration: 0.5 }}
-        className="flex items-center justify-center w-10 h-10 rounded-full purple-gradient-bg"
+        className="flex items-center justify-center w-10 h-10 rounded-full bg-white text-black"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
@@ -26,14 +26,14 @@ const AdPirateLogo = ({ className = "" }: AdPirateLogoProps) => {
           strokeWidth="2" 
           strokeLinecap="round" 
           strokeLinejoin="round" 
-          className="h-5 w-5 text-white"
+          className="h-5 w-5"
         >
-          <path d="m22 9-10 13L2 9l10-5 10 5Z" />
-          <path d="M6 12v5c0 1 1 2 2 2h8c1 0 2-1 2-2v-5" />
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
         </svg>
       </motion.div>
       <div className="flex flex-col">
-        <span className="font-bold text-xl tracking-tight text-gradient">MediaGlobe</span>
+        <span className="font-bold text-xl tracking-tight text-white">MediaGlobe</span>
         <span className="text-xs text-muted-foreground">Convert Your Competitors</span>
       </div>
     </motion.div>

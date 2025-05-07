@@ -5,46 +5,46 @@
 
 @layer base {
   :root {
-    --background: 260 70% 7%;
+    --background: 0 0% 0%;
     --foreground: 0 0% 98%;
     
-    --card: 260 70% 10%;
+    --card: 0 0% 4%;
     --card-foreground: 0 0% 98%;
     
-    --popover: 260 70% 7%;
+    --popover: 0 0% 0%;
     --popover-foreground: 0 0% 98%;
     
     --primary: 265 100% 70%;
-    --primary-foreground: 0 0% 98%;
+    --primary-foreground: 0 0% 100%;
     
-    --secondary: 260 30% 15%;
+    --secondary: 0 0% 9%;
     --secondary-foreground: 0 0% 98%;
     
-    --muted: 260 30% 15%;
+    --muted: 0 0% 9%;
     --muted-foreground: 0 0% 70%;
     
-    --accent: 265 100% 80%;
+    --accent: 265 100% 70%;
     --accent-foreground: 0 0% 98%;
     
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 260 20% 20%;
-    --input: 260 20% 20%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
     --ring: 265 100% 70%;
     
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 }
 
 @layer base {
   * {
-    @apply border-border selection:bg-primary/20 selection:text-primary;
+    @apply border-border selection:bg-primary/10 selection:text-primary;
   }
   
   body {
     @apply bg-background text-foreground antialiased;
-    background: linear-gradient(to bottom, #0d0717, #1A1F2C);
+    background: black;
     min-height: 100vh;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
@@ -69,7 +69,7 @@
   }
   
   .text-gradient {
-    @apply bg-gradient-to-br from-mediaglobal-purple via-mediaglobal-light-purple to-mediaglobal-deep-purple bg-clip-text text-transparent;
+    @apply bg-gradient-to-br from-white to-white/80 bg-clip-text text-transparent;
   }
 
   .purple-gradient-bg {
@@ -77,7 +77,7 @@
   }
 
   .card-gradient {
-    background: linear-gradient(145deg, rgba(26, 31, 44, 0.8) 0%, rgba(13, 7, 23, 0.6) 100%);
+    background: linear-gradient(145deg, rgba(18, 18, 18, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -81,8 +80,8 @@ export default {
 					purple: '#8954ff',
 					'deep-purple': '#6c00ff',
 					'light-purple': '#a87bff',
-					black: '#0d0717',
-					'dark-gray': '#1A1F2C',
+					black: '#000000',
+					'dark-gray': '#121212',
 					white: '#ffffff',
 				}
 			},
